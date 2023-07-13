@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Home Door</string>
+    <string name="app_widget_description">This is an app widget description</string>
+    <string name="unlock_btn">Unlock</string>
+    <string name="door_item">Door Name</string>
+    <string name="delete_btn">Delete</string>
+    <string name="add_shortcut_btn">Add Shortcut</string>
+    <string name="door_name_field">Door Name</string>
+    <string name="ip_field">Door IP</string>
+    <string name="username_field">Door UserName</string>
+    <string name="password_field">Door Password</string>
+    <string name="dialog_title">Add New Door</string>
+    <string name="positive_btn">Add</string>
+    <string name="negative_btn">Cancel</string>
+    <string name="ip_empty_msg">please enter the ip address!</string>
+    <string name="name_empty_msg">please enter the door name!</string>
+    <string name="user_empty_msg">please enter the username!</string>
+    <string name="password_empty_msg">please enter the password!</string>
+    <string name="password_spaces_msg">the password couldn\'t has spaces!</string>
+    <string name="user_spaces_msg">the username couldn\'t has spaces!</string>
+    <string name="ip_match_msg">please enter correct ip!</string>
+    <string name="pin_toast">Widget pinned. Go to homeScreen.</string>
+</resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">باب المنزل</string>
+    <string name="app_widget_description">هذا الوصف</string>
+    <string name="unlock_btn">افتح</string>
+    <string name="door_item">اسم الباب</string>
+    <string name="delete_btn">حذف</string>
+    <string name="add_shortcut_btn">اضافة اختصار</string>
+    <string name="door_name_field">الاسم</string>
+    <string name="ip_field">عنوان IP</string>
+    <string name="username_field">اسم المستخدم</string>
+    <string name="password_field">كلمة المرور</string>
+    <string name="dialog_title">اضافة باب</string>
+    <string name="positive_btn">اضافة</string>
+    <string name="negative_btn">الغاء</string>
+    <string name="ip_empty_msg">الرجاء ادخال عنوان ip!</string>
+    <string name="name_empty_msg">الرجاء ادخال الاسم!</string>
+    <string name="user_empty_msg">الرجاء ادخال اسم المستخدم!</string>
+    <string name="password_empty_msg">الرجاء ادخال كلمة المرور!</string>
+    <string name="password_spaces_msg">كلمة المرور لا يمكن ان تحتوي مسافات!</string>
+    <string name="user_spaces_msg">اسم المستخدم لا يمكن ان يحتوي مسافات!</string>
+    <string name="ip_match_msg">الرجاء ادخال عنوان ip صحيح!</string>
+    <string name="pin_toast">تم اضافة الاختصار, اذهب الى الشاشة الرئيسية</string>
+</resources>
