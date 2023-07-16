@@ -33,16 +33,16 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.unlock_widget).apply {
         setTextViewText(R.id.appwidget_text, door.name)
-        setOnClickPendingIntent(R.id.appwidget, getPendingIntent(context, door) )
+        setOnClickPendingIntent(R.id.appwidget, getPendingIntent(context, door, appWidgetId) )
     }
 
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views)
 }
 
-private fun getPendingIntent(context: Context, door: DoorEntity): PendingIntent {
+private fun getPendingIntent(context: Context, door: DoorEntity, widgetId: Int): PendingIntent {
     val intent = Intent(context, WidgetActionReceiver::class.java)
-    intent.action = "ClickAction"
+    intent.action = "ClickAction$widgetId"
     intent.putExtra("door", door.toList().toTypedArray())
 
     return PendingIntent.getBroadcast(

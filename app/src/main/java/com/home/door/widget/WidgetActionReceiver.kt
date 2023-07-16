@@ -11,7 +11,7 @@ class WidgetActionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val door = intent.extras?.getStringArray("door")?.toList()?.toDoor() ?: return
-        if (intent.action == "ClickAction") {
+        if (intent.action?.startsWith("ClickAction") == true) {
             // call your function here
             DoorOpener.unlockDoor(door.toList().toDoor())
         }
