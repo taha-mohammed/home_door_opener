@@ -2,10 +2,10 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="40dp"
     android:minHeight="40dp"
-    android:previewImage="@drawable/example_appwidget_preview"
+    android:previewImage="@mipmap/ic_widget_preview"
     android:initialLayout="@layout/unlock_widget"
     android:description="@string/app_widget_description"
-
+    android:configure="com.home.door.WidgetConfActivity"
     android:widgetCategory="home_screen"
     android:previewLayout="@layout/unlock_widget"
     android:targetCellHeight="1"
