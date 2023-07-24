@@ -22,7 +22,7 @@ class DoorViewModel(
     val uiEvent = _uiEvent.receiveAsFlow()
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repository.getDoors().collect {
                 doors = it
                 _uiEvent.send(UiEvent.REFRESH)
@@ -30,13 +30,13 @@ class DoorViewModel(
         }
     }
     fun insert(door: DoorEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repository.insertDoors(listOf(door))
         }
     }
 
     fun delete(door: DoorEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repository.deleteDoor(door)
         }
     }
