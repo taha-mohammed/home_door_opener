@@ -9,6 +9,7 @@ import android.widget.RemoteViews
 import com.home.door.R
 import com.home.door.data.DoorEntity
 import com.home.door.util.DoorPrefs
+import com.home.door.util.Graph
 import com.home.door.util.toList
 
 
@@ -23,13 +24,13 @@ class UnlockWidget : AppWidgetProvider() {
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         // When the user deletes the widget, delete the preference associated with it.
         for (appWidgetId in appWidgetIds) {
-            DoorPrefs.deleteDoorPref(context, appWidgetId)
+            Graph.doorPrefs.deleteDoorPref(appWidgetId)
         }
     }
 }
 
 internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-    val door = DoorPrefs.loadDoorPref(context, appWidgetId)
+    val door = Graph.doorPrefs.loadDoorPref(appWidgetId)
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.unlock_widget).apply {
         setTextViewText(R.id.appwidget_text, door.name)

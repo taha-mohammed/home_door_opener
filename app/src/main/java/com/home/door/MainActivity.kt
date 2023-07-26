@@ -16,9 +16,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.textfield.TextInputEditText
 import com.home.door.data.DoorEntity
 import com.home.door.databinding.ActivityMainBinding
-import com.home.door.util.DoorOpener
 import com.home.door.util.DoorPrefs
 import com.home.door.util.DoorValidator
+import com.home.door.util.Graph
 import com.home.door.widget.UnlockWidget
 import com.home.door.widget.updateAppWidget
 import kotlinx.coroutines.Dispatchers
@@ -39,9 +39,9 @@ class MainActivity : AppCompatActivity() {
         val viewModel by viewModels<DoorViewModel>()
 
         val doorAdapter = DoorAdapter(
-            onDelete = { viewModel.delete(it) },
+            onDelete = viewModel::delete,
             onAddShortcut = { pinWidget(this, it)},
-            onUnlock = { DoorOpener.unlockDoor(it) }
+            onUnlock = viewModel::unlockDoor
         )
         binding.recycler.adapter = doorAdapter
         binding.recycler.layoutManager = GridLayoutManager( this, 2)
@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.fab.setOnClickListener { _ ->
-            showNewDoorDialog { viewModel.insert(it) }
+            showNewDoorDialog(viewModel::insert)
         }
     }
 
@@ -77,8 +77,8 @@ class MainActivity : AppCompatActivity() {
 
         val dialog = dialogBuilder.create()
         dialog.setOnShowListener {
-            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            positiveButton.setOnClickListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener {
                 if (checkFields(nameEditText, ipEditText, userEditText, passwordEditText)) {
                     val door = DoorEntity(
                         name = nameEditText.text.toString().trim(),
@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity() {
                             currWidgets = appWidgetManager.getAppWidgetIds(provider)
                         }
                         currWidgets.last().let {
-                            DoorPrefs.saveDoorPref(context, it, door)
+                            Graph.doorPrefs.saveDoorPref(it, door)
                             Log.d("TAG", "pinWidget: door data is saved")
                             updateAppWidget(context, appWidgetManager, it)
                             Log.d("TAG", "pinWidget: widget is updated")

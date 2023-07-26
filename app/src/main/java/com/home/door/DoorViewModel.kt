@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.home.door.data.DoorEntity
 import com.home.door.data.DoorRepo
+import com.home.door.util.DoorOpener
 import com.home.door.util.Graph
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -39,6 +40,10 @@ class DoorViewModel(
         viewModelScope.launch {
             repository.deleteDoor(door)
         }
+    }
+
+    fun unlockDoor(door: DoorEntity) {
+        DoorOpener.unlockDoor(door)
     }
 }
 

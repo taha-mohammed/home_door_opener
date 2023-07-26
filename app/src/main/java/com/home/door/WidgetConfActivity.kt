@@ -33,7 +33,7 @@ class WidgetConfActivity : AppCompatActivity() {
         val recycler = findViewById<RecyclerView>(R.id.conf_recycler)
         recycler.layoutManager = LinearLayoutManager(this)
         val onClick:(door: DoorEntity) -> Unit = {
-            DoorPrefs.saveDoorPref(this, widgetId, it)
+            Graph.doorPrefs.saveDoorPref(widgetId, it)
             Log.d("TAG", "pinWidget: door data is saved")
             updateAppWidget(this, AppWidgetManager.getInstance(this), widgetId)
             Log.d("TAG", "pinWidget: widget is updated")
