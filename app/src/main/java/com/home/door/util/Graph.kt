@@ -3,7 +3,7 @@ package com.home.door.util
 import android.content.Context
 import androidx.room.Room
 import com.home.door.data.AppDatabase
-import com.home.door.data.DoorRepoImpl
+import com.home.door.repository.DoorRepoImpl
 
 object Graph {
     lateinit var database: AppDatabase

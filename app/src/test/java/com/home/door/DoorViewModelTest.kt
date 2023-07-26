@@ -1,16 +1,14 @@
 package com.home.door
 
 import com.home.door.data.DoorEntity
-import com.home.door.data.FakeDoorRepoImpl
+import com.home.door.repository.FakeDoorRepoImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainCoroutineDispatcher
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

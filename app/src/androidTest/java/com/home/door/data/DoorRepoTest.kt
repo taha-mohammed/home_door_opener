@@ -5,10 +5,11 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.test.runTest
 import com.google.common.truth.Truth.assertThat
+import com.home.door.repository.DoorRepoImpl
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -19,6 +20,7 @@ import org.junit.runner.RunWith
 @SmallTest
 class DoorRepoTest {
 
+    private val dispatcher = UnconfinedTestDispatcher()
     private lateinit var repo: DoorRepo
     private lateinit var database: AppDatabase
 
@@ -28,7 +30,10 @@ class DoorRepoTest {
             ApplicationProvider.getApplicationContext(),
             AppDatabase::class.java
         ).allowMainThreadQueries().build()
-        repo = DoorRepoImpl(database.doorDao())
+        repo = DoorRepoImpl(
+            database.doorDao(),
+            dispatcher
+        )
     }
 
     @After
@@ -37,7 +42,7 @@ class DoorRepoTest {
     }
 
     @Test
-    fun insertDoor() = runTest {
+    fun insertDoor() = runTest(dispatcher.scheduler) {
         val door = DoorEntity(id=0 ,name = "door1", ip = "192.168.1.1", user = "taha", password = "taha")
         repo.insertDoors(listOf(door))
 
@@ -47,7 +52,7 @@ class DoorRepoTest {
     }
 
     @Test
-    fun updateDoor() = runTest {
+    fun updateDoor() = runTest(dispatcher.scheduler) {
         DoorEntity(id=0 ,name = "door1", ip = "192.168.1.1", user = "taha", password = "taha").let {
             repo.insertDoors(listOf(it))
         }
@@ -62,7 +67,7 @@ class DoorRepoTest {
     }
 
     @Test
-    fun deleteDoor() = runTest {
+    fun deleteDoor() = runTest(dispatcher.scheduler) {
         DoorEntity(id=0 ,name = "door1", ip = "192.168.1.1", user = "taha", password = "taha").let {
             repo.insertDoors(listOf(it))
         }
