@@ -1,37 +1,73 @@
 package com.home.door.util
 
-import android.content.Context
 import com.home.door.R
+import com.home.door.data.DoorEntity
 
 object DoorValidator {
-    fun validateName(name: String, context: Context): Boolean{
-        if (name.isBlank())
-            throw Exception(context.getString(R.string.name_empty_msg))
+
+    fun validateDoor(door: DoorEntity): FieldErrorState {
+        var result = FieldErrorState()
+
+        try { validateName(door.name) }
+        catch (e: IllegalArgumentException) {
+            result = result.copy(nameError = e.message?.toInt())
+        }
+
+        // validate ip
+        try { validateIp(door.ip) }
+        catch (e: IllegalArgumentException) {
+            result = result.copy(ipError = e.message?.toInt())
+        }
+
+        // validate username
+        try { validateUser(door.user) }
+        catch (e: IllegalArgumentException) {
+            result = result.copy(userError = e.message?.toInt())
+        }
+
+        // validate password
+        try { validatePassword(door.password) }
+        catch (e: IllegalArgumentException) {
+            result = result.copy(passwordError = e.message?.toInt())
+        }
+
+        return result
+    }
+    private fun validateName(name: String): Boolean{
+        require (name.isNotBlank()) {
+            R.string.name_empty_msg
+        }
         return true
     }
 
-    fun validateIp(ip: String, context: Context): Boolean{
-        if (ip.isBlank())
-            throw Exception(context.getString(R.string.ip_empty_msg))
+    private fun validateIp(ip: String): Boolean{
+        require (ip.isNotBlank()) {
+            R.string.ip_empty_msg
+        }
         val regex = "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$"
-        if (!ip.matches(regex.toRegex()))
-            throw Exception(context.getString(R.string.ip_match_msg))
+        require (ip.matches(regex.toRegex())) {
+            R.string.ip_match_msg
+        }
         return true
     }
 
-    fun validateUser(user: String, context: Context): Boolean{
-        if (user.isBlank())
-            throw Exception(context.getString(R.string.user_empty_msg))
-        if (user.contains(" "))
-            throw Exception(context.getString(R.string.user_spaces_msg))
+    private fun validateUser(user: String): Boolean{
+        require (user.isNotBlank()) {
+            R.string.user_empty_msg
+        }
+        require (!user.contains(" ")) {
+            R.string.user_spaces_msg
+        }
         return true
     }
 
-    fun validatePassword(password: String, context: Context): Boolean{
-        if (password.isBlank())
-            throw Exception(context.getString(R.string.password_empty_msg))
-        if (password.contains(" "))
-            throw Exception(context.getString(R.string.password_spaces_msg))
+    private fun validatePassword(password: String): Boolean{
+        require (password.isNotBlank()) {
+            R.string.password_empty_msg
+        }
+        require (!password.contains(" ")) {
+            R.string.password_spaces_msg
+        }
         return true
     }
 

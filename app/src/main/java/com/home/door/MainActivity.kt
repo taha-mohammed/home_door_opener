@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -16,9 +17,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.textfield.TextInputEditText
 import com.home.door.data.DoorEntity
 import com.home.door.databinding.ActivityMainBinding
-import com.home.door.util.DoorPrefs
-import com.home.door.util.DoorValidator
 import com.home.door.util.Graph
+import com.home.door.util.MainEvent
 import com.home.door.widget.UnlockWidget
 import com.home.door.widget.updateAppWidget
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +27,12 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    private lateinit var dialog: AlertDialog
+    private lateinit var nameEditText: TextInputEditText
+    private lateinit var ipEditText: TextInputEditText
+    private lateinit var userEditText: TextInputEditText
+    private lateinit var passwordEditText: TextInputEditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,33 +45,55 @@ class MainActivity : AppCompatActivity() {
         val viewModel by viewModels<DoorViewModel>()
 
         val doorAdapter = DoorAdapter(
-            onDelete = viewModel::delete,
-            onAddShortcut = { pinWidget(this, it)},
-            onUnlock = viewModel::unlockDoor
+            onDelete = { viewModel.onEvent(MainEvent.DeleteDoor(it)) },
+            onAddShortcut = { pinWidget(this, it) },
+            onUnlock = { viewModel.onEvent(MainEvent.UnlockDoor(it)) }
         )
         binding.recycler.adapter = doorAdapter
         binding.recycler.layoutManager = GridLayoutManager( this, 2)
         doorAdapter.submitList(viewModel.doors)
+
         lifecycleScope.launch {
-            viewModel.uiEvent.collect {
-                if (it == UiEvent.REFRESH) {
-                    doorAdapter.submitList(viewModel.doors)
-                    Log.d("TAG", "onCreate: refresh list")
+            viewModel.uiEvent.collect { event ->
+                when (event) {
+                    UiEvent.AddSuccess -> {
+                        dialog.dismiss()
+                    }
+                    UiEvent.Refresh -> {
+                        doorAdapter.submitList(viewModel.doors)
+                        Log.d("TAG", "onCreate: refresh list")
+                    }
+                    is UiEvent.ValidateFields -> {
+                        with(event.result) {
+                            nameError?.let {
+                                nameEditText.error = getString(it)
+                            }
+                            ipError?.let {
+                                ipEditText.error = getString(it)
+                            }
+                            userError?.let {
+                                userEditText.error = getString(it)
+                            }
+                            passwordError?.let {
+                                passwordEditText.error = getString(it)
+                            }
+                        }
+                    }
                 }
             }
         }
 
         binding.fab.setOnClickListener { _ ->
-            showNewDoorDialog(viewModel::insert)
+            showNewDoorDialog { viewModel.onEvent(MainEvent.AddDoor(it)) }
         }
     }
 
     private fun showNewDoorDialog(onAddNew: (DoorEntity) -> Unit) {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_new_door, null)
-        val nameEditText: TextInputEditText = dialogView.findViewById(R.id.name_edit)
-        val ipEditText: TextInputEditText = dialogView.findViewById(R.id.ip_edit)
-        val userEditText: TextInputEditText = dialogView.findViewById(R.id.username_edit)
-        val passwordEditText: TextInputEditText = dialogView.findViewById(R.id.password_edit)
+        val dialogView: View = LayoutInflater.from(this).inflate(R.layout.dialog_new_door, null)
+        nameEditText = dialogView.findViewById(R.id.name_edit)
+        ipEditText = dialogView.findViewById(R.id.ip_edit)
+        userEditText = dialogView.findViewById(R.id.username_edit)
+        passwordEditText = dialogView.findViewById(R.id.password_edit)
 
         val dialogBuilder = AlertDialog.Builder(this)
             .setView(dialogView)
@@ -75,11 +103,10 @@ class MainActivity : AppCompatActivity() {
             }
             .setNegativeButton(getString(R.string.negative_btn), null)
 
-        val dialog = dialogBuilder.create()
+        dialog = dialogBuilder.create()
         dialog.setOnShowListener {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener {
-                if (checkFields(nameEditText, ipEditText, userEditText, passwordEditText)) {
                     val door = DoorEntity(
                         name = nameEditText.text.toString().trim(),
                         ip = ipEditText.text.toString().trim(),
@@ -87,41 +114,9 @@ class MainActivity : AppCompatActivity() {
                         password = passwordEditText.text.toString().trim(),
                     )
                     onAddNew(door)
-                    dialog.dismiss()
                 }
-            }
         }
         dialog.show()
-    }
-
-    private fun checkFields(
-        nameEditText: TextInputEditText,
-        ipEditText: TextInputEditText,
-        userEditText: TextInputEditText,
-        passwordEditText: TextInputEditText
-    ): Boolean {
-        // validate name
-        var validated = true
-        try { DoorValidator.validateName(nameEditText.text.toString(), this) }
-        catch (e: Exception) {
-            nameEditText.error = e.message;validated = false }
-
-        // validate ip
-        try { DoorValidator.validateIp(ipEditText.text.toString(), this) }
-        catch (e: Exception) {
-            ipEditText.error = e.message;validated = false }
-
-        // validate username
-        try { DoorValidator.validateUser(userEditText.text.toString(), this) }
-        catch (e: Exception) {
-            userEditText.error = e.message;validated = false }
-
-        // validate password
-        try { DoorValidator.validatePassword(passwordEditText.text.toString(), this) }
-        catch (e: Exception) {
-            passwordEditText.error = e.message;validated = false }
-
-        return validated
     }
 
     private fun pinWidget(context: Context, door: DoorEntity) {

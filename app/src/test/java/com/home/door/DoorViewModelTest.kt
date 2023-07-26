@@ -5,6 +5,8 @@ import com.home.door.repository.FakeDoorRepoImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import com.google.common.truth.Truth.assertThat
+import com.home.door.util.FieldErrorState
+import com.home.door.util.MainEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.*
 import org.junit.After
@@ -39,14 +41,14 @@ class DoorViewModelTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiEvent.collect{
                 when (it) {
-                    UiEvent.REFRESH -> {
+                    UiEvent.Refresh -> {
                         doors = viewModel.doors
                     }
-                    UiEvent.NONE -> {}
+                    else -> {}
                 }
             }
         }
-        viewModel.insert(door)
+        viewModel.onEvent(MainEvent.AddDoor(door))
 
         assertThat(doors.first().name).isEqualTo("door1")
     }
@@ -59,18 +61,58 @@ class DoorViewModelTest {
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiEvent.collect{
                 when (it) {
-                    UiEvent.REFRESH -> {
+                    UiEvent.Refresh -> {
                         doors = viewModel.doors
                     }
-                    UiEvent.NONE -> {}
+                    else -> {}
                 }
             }
         }
-        viewModel.insert(door)
+        viewModel.onEvent(MainEvent.AddDoor(door))
 
-        viewModel.delete(door)
+        viewModel.onEvent(MainEvent.DeleteDoor(door))
 
         assertThat(doors).isEmpty()
 
+    }
+
+    @Test
+    fun `add door with empty name,return error message`() = runTest {
+        val door = DoorEntity(id=0 ,name = "", ip = "192.168.1.1", user = "taha", password = "taha")
+
+        var errorState = FieldErrorState()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiEvent.collect{
+                when (it) {
+                    is UiEvent.ValidateFields -> {
+                        errorState = it.result
+                    }
+                    else -> {}
+                }
+            }
+        }
+        viewModel.onEvent(MainEvent.AddDoor(door))
+
+        assertThat(errorState.nameError).isNotNull()
+    }
+
+    @Test
+    fun `add door with valid fields,return true`() = runTest {
+        val door = DoorEntity(id=0 ,name = "taha", ip = "192.168.1.1", user = "taha", password = "taha")
+
+        var validity: Boolean? = null
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiEvent.collect{
+                when (it) {
+                    UiEvent.AddSuccess -> {
+                        validity= true
+                    }
+                    else -> {}
+                }
+            }
+        }
+        viewModel.onEvent(MainEvent.AddDoor(door))
+
+        assertThat(validity).isTrue()
     }
 }
