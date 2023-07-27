@@ -9,6 +9,7 @@ import com.burgstaller.okhttp.CachingAuthenticatorDecorator
 import com.burgstaller.okhttp.digest.CachingAuthenticator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -18,36 +19,35 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.concurrent.ConcurrentHashMap
 
 object DoorOpener {
-    internal fun unlockDoor(door: DoorEntity) {
+    internal suspend fun unlockDoor(door: DoorEntity): Result<Unit> = withContext(Dispatchers.IO) {
 
-        runBlocking(Dispatchers.IO){
+        val authenticator = DigestAuthenticator(Credentials(door.user, door.password))
 
-            val authenticator = DigestAuthenticator(Credentials(door.user, door.password))
+        val authCache: Map<String, CachingAuthenticator> = ConcurrentHashMap()
+        val client = OkHttpClient.Builder()
+            .authenticator(CachingAuthenticatorDecorator(authenticator, authCache))
+            .addInterceptor(AuthenticationCacheInterceptor(authCache))
+            .build()
 
-            val authCache: Map<String, CachingAuthenticator> = ConcurrentHashMap()
-            val client = OkHttpClient.Builder()
-                .authenticator(CachingAuthenticatorDecorator(authenticator, authCache))
-                .addInterceptor(AuthenticationCacheInterceptor(authCache))
-                .build()
+        val body = "<RemoteControlDoor><cmd>open</cmd></RemoteControlDoor>"
+            .toRequestBody("application/xml".toMediaType())
+        val request: Request = Request.Builder()
+            .url("http://"+door.ip+"/ISAPI/AccessControl/RemoteControl/door/1")
+            .put(body)
+            .build()
 
-            val body = "<RemoteControlDoor><cmd>open</cmd></RemoteControlDoor>"
-                .toRequestBody("application/xml".toMediaType())
-            val request: Request = Request.Builder()
-                .url("http://"+door.ip+"/ISAPI/AccessControl/RemoteControl/door/1")
-                .put(body)
-                .build()
-
-            // Make the request
-            try {
-                val response = client.newCall(request).execute()
-                if (response.isSuccessful) {
-                    Log.d("TAG", "Response successful: " + response.body)
-                } else {
-                    Log.e("TAG", "Response failed: " + response.message)
-                }
-            } catch (e: Exception) {
-                Log.e("TAG", "Error: " + e.message)
+        // Make the request
+        try {
+            val response = client.newCall(request).execute()
+            if (!response.isSuccessful) {
+                Log.e("TAG", "Response failed: " + response.message)
+                return@withContext Result.failure(Throwable(response.message))
+            } else {
             }
+        } catch (e: Exception) {
+            Log.e("TAG", "Error: " + e.message)
+            return@withContext Result.failure(e)
         }
+        Result.success(Unit)
     }
 }

@@ -1,5 +1,6 @@
 package com.home.door
 
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.home.door.data.DoorEntity
@@ -64,7 +65,9 @@ class DoorViewModel(
 
     private fun unlockDoor(door: DoorEntity) {
         viewModelScope.launch {
-            DoorOpener.unlockDoor(door)
+            DoorOpener.unlockDoor(door).also {
+                _uiEvent.send(UiEvent.OpenResult(it))
+            }
         }
     }
 }
@@ -72,5 +75,6 @@ class DoorViewModel(
 sealed class UiEvent{
     object Refresh: UiEvent()
     object AddSuccess: UiEvent()
+    data class OpenResult(val result: Result<Unit>): UiEvent()
     data class ValidateFields(val result: FieldErrorState): UiEvent()
 }

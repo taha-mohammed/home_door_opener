@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
             onUnlock = { viewModel.onEvent(MainEvent.UnlockDoor(it)) }
         )
         binding.recycler.adapter = doorAdapter
-        binding.recycler.layoutManager = GridLayoutManager( this, 2)
+        binding.recycler.layoutManager = GridLayoutManager(this, 2)
         doorAdapter.submitList(viewModel.doors)
 
         lifecycleScope.launch {
@@ -62,6 +62,23 @@ class MainActivity : AppCompatActivity() {
                     UiEvent.Refresh -> {
                         doorAdapter.submitList(viewModel.doors)
                         Log.d("TAG", "onCreate: refresh list")
+                    }
+                    is UiEvent.OpenResult -> {
+                        event.result
+                            .onSuccess {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    getString(R.string.door_opened),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            .onFailure {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    it.localizedMessage,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                     }
                     is UiEvent.ValidateFields -> {
                         with(event.result) {
@@ -124,29 +141,33 @@ class MainActivity : AppCompatActivity() {
         val provider = ComponentName(context, UnlockWidget::class.java)
         val widgetsCount = appWidgetManager.getAppWidgetIds(provider).size
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (appWidgetManager.isRequestPinAppWidgetSupported) {
-
-                val result = appWidgetManager.requestPinAppWidget(provider, null, null)
-                if (result) {
-                    Toast.makeText(
-                        context,
-                        getString(R.string.pin_toast),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        var currWidgets = appWidgetManager.getAppWidgetIds(provider)
-                        while (currWidgets.size <= widgetsCount){
-                            currWidgets = appWidgetManager.getAppWidgetIds(provider)
-                        }
-                        currWidgets.last().let {
-                            Graph.doorPrefs.saveDoorPref(it, door)
-                            Log.d("TAG", "pinWidget: door data is saved")
-                            updateAppWidget(context, appWidgetManager, it)
-                            Log.d("TAG", "pinWidget: widget is updated")
-                        }
-                    }
-                }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O
+            || !appWidgetManager.isRequestPinAppWidgetSupported
+        ) {
+            Toast.makeText(context, getString(R.string.feature_not_supported), Toast.LENGTH_SHORT)
+                .show()
+            return
+        }
+        val result = appWidgetManager.requestPinAppWidget(provider, null, null)
+        if (!result) {
+            Toast.makeText(context, getString(R.string.shortcut_failed), Toast.LENGTH_SHORT)
+                .show()
+        }
+        Toast.makeText(
+            context,
+            getString(R.string.pin_toast),
+            Toast.LENGTH_SHORT
+        ).show()
+        lifecycleScope.launch(Dispatchers.IO) {
+            var currWidgets = appWidgetManager.getAppWidgetIds(provider)
+            while (currWidgets.size <= widgetsCount) {
+                currWidgets = appWidgetManager.getAppWidgetIds(provider)
+            }
+            currWidgets.last().let {
+                Graph.doorPrefs.saveDoorPref(it, door)
+                Log.d("TAG", "pinWidget: door data is saved")
+                updateAppWidget(context, appWidgetManager, it)
+                Log.d("TAG", "pinWidget: widget is updated")
             }
         }
     }

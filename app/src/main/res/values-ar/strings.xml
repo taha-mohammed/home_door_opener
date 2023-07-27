@@ -21,4 +21,7 @@
     <string name="user_spaces_msg">اسم المستخدم لا يمكن ان يحتوي مسافات!</string>
     <string name="ip_match_msg">الرجاء ادخال عنوان ip صحيح!</string>
     <string name="pin_toast">تم اضافة الاختصار, اذهب الى الشاشة الرئيسية</string>
+    <string name="feature_not_supported">هاتفك لا يدعم هذه الميزة!</string>
+    <string name="shortcut_failed">فشل في اضافة الاختصار الى الشاشة الرئيسية!</string>
+    <string name="door_opened">الباب مفتوح</string>
 </resources>
