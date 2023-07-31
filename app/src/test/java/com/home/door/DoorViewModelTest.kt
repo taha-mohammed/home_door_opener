@@ -8,9 +8,11 @@ import com.google.common.truth.Truth.assertThat
 import com.home.door.util.FieldErrorState
 import com.home.door.util.MainEvent
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainCoroutineDispatcher
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -39,13 +41,8 @@ class DoorViewModelTest {
 
         var doors = listOf<DoorEntity>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.uiEvent.collect{
-                when (it) {
-                    UiEvent.Refresh -> {
-                        doors = viewModel.doors
-                    }
-                    else -> {}
-                }
+            viewModel.uiState.collect{
+                doors = it.doors
             }
         }
         viewModel.onEvent(MainEvent.AddDoor(door))
@@ -59,13 +56,8 @@ class DoorViewModelTest {
 
         var doors = listOf<DoorEntity>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.uiEvent.collect{
-                when (it) {
-                    UiEvent.Refresh -> {
-                        doors = viewModel.doors
-                    }
-                    else -> {}
-                }
+            viewModel.uiState.collect{
+                doors = it.doors
             }
         }
         viewModel.onEvent(MainEvent.AddDoor(door))
@@ -82,13 +74,8 @@ class DoorViewModelTest {
 
         var errorState = FieldErrorState()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.uiEvent.collect{
-                when (it) {
-                    is UiEvent.ValidateFields -> {
-                        errorState = it.result
-                    }
-                    else -> {}
-                }
+            viewModel.uiState.collect{
+                errorState = it.validationState
             }
         }
         viewModel.onEvent(MainEvent.AddDoor(door))
@@ -102,13 +89,8 @@ class DoorViewModelTest {
 
         var validity: Boolean? = null
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.uiEvent.collect{
-                when (it) {
-                    UiEvent.AddSuccess -> {
-                        validity= true
-                    }
-                    else -> {}
-                }
+            viewModel.uiState.collect{
+                validity = it.isAdded
             }
         }
         viewModel.onEvent(MainEvent.AddDoor(door))

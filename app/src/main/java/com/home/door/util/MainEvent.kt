@@ -7,4 +7,6 @@ sealed class MainEvent {
     data class AddDoor(val door: DoorEntity): MainEvent()
     data class UnlockDoor(val door: DoorEntity): MainEvent()
     data class PinDoorWidget(val door: DoorEntity): MainEvent()
+    object DoorAdded: MainEvent()
+    object DoorUnlocked: MainEvent()
 }

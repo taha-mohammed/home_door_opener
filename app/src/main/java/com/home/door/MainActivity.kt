@@ -12,7 +12,9 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.textfield.TextInputEditText
 import com.home.door.data.DoorEntity
@@ -21,7 +23,12 @@ import com.home.door.util.Graph
 import com.home.door.util.MainEvent
 import com.home.door.widget.UnlockWidget
 import com.home.door.widget.updateAppWidget
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -33,6 +40,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var ipEditText: TextInputEditText
     private lateinit var userEditText: TextInputEditText
     private lateinit var passwordEditText: TextInputEditText
+
+    private var dialogJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,57 +60,65 @@ class MainActivity : AppCompatActivity() {
         )
         binding.recycler.adapter = doorAdapter
         binding.recycler.layoutManager = GridLayoutManager(this, 2)
-        doorAdapter.submitList(viewModel.doors)
 
         lifecycleScope.launch {
-            viewModel.uiEvent.collect { event ->
-                when (event) {
-                    UiEvent.AddSuccess -> {
-                        dialog.dismiss()
-                    }
-                    UiEvent.Refresh -> {
-                        doorAdapter.submitList(viewModel.doors)
-                        Log.d("TAG", "onCreate: refresh list")
-                    }
-                    is UiEvent.OpenResult -> {
-                        event.result
-                            .onSuccess {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.distinctUntilChanged { _, new -> new.openResult == null }
+                    .collect { state ->
+                        state.openResult
+                            ?.onSuccess {
                                 Toast.makeText(
                                     this@MainActivity,
                                     getString(R.string.door_opened),
                                     Toast.LENGTH_SHORT
                                 ).show()
+                                viewModel.onEvent(MainEvent.DoorUnlocked)
                             }
-                            .onFailure {
+                            ?.onFailure {
                                 Toast.makeText(
                                     this@MainActivity,
                                     it.localizedMessage,
                                     Toast.LENGTH_SHORT
                                 ).show()
+                                viewModel.onEvent(MainEvent.DoorUnlocked)
                             }
                     }
-                    is UiEvent.ValidateFields -> {
-                        with(event.result) {
-                            nameError?.let {
-                                nameEditText.error = getString(it)
-                            }
-                            ipError?.let {
-                                ipEditText.error = getString(it)
-                            }
-                            userError?.let {
-                                userEditText.error = getString(it)
-                            }
-                            passwordError?.let {
-                                passwordEditText.error = getString(it)
-                            }
-                        }
-                    }
+            }
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.distinctUntilChanged { old, new -> old.doors == new.doors }
+                    .collect { state->
+                    doorAdapter.submitList(state.doors)
                 }
             }
         }
 
         binding.fab.setOnClickListener { _ ->
             showNewDoorDialog { viewModel.onEvent(MainEvent.AddDoor(it)) }
+            dialogJob = lifecycleScope.launch {
+                viewModel.uiState.collect { state ->
+                    if (state.isAdded) {
+                        dialog.cancel()
+                        viewModel.onEvent(MainEvent.DoorAdded)
+                        cancel()
+                    }
+                    with(state.validationState) {
+                        nameError?.let {
+                            nameEditText.error = getString(it)
+                        }
+                        ipError?.let {
+                            ipEditText.error = getString(it)
+                        }
+                        userError?.let {
+                            userEditText.error = getString(it)
+                        }
+                        passwordError?.let {
+                            passwordEditText.error = getString(it)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -118,7 +135,7 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton(getString(R.string.positive_btn)) { _, _ ->
 
             }
-            .setNegativeButton(getString(R.string.negative_btn), null)
+            .setNegativeButton(getString(R.string.negative_btn)) { _, _ -> dialogJob?.cancel() }
 
         dialog = dialogBuilder.create()
         dialog.setOnShowListener {
