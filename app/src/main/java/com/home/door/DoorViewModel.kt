@@ -4,8 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.home.door.data.DoorEntity
 import com.home.door.data.DoorRepo
-import com.home.door.util.*
-import kotlinx.coroutines.flow.*
+import com.home.door.util.DoorOpener
+import com.home.door.util.DoorValidator
+import com.home.door.util.FieldErrorState
+import com.home.door.util.Graph
+import com.home.door.util.MainEvent
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class MainUiState(
@@ -23,8 +30,12 @@ class DoorViewModel(
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState = _uiState.asStateFlow()
 
-    init {
-        viewModelScope.launch {
+    private var initJob: Job? = null
+
+    fun initialize() {
+        if (initJob != null)
+            return
+        initJob = viewModelScope.launch {
             repository.getDoors().collect {
                 _uiState.update {previous ->
                     previous.copy(doors = it)

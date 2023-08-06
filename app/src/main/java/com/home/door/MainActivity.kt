@@ -23,10 +23,8 @@ import com.home.door.util.Graph
 import com.home.door.util.MainEvent
 import com.home.door.widget.UnlockWidget
 import com.home.door.widget.updateAppWidget
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -52,6 +50,8 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
 
         val viewModel by viewModels<DoorViewModel>()
+
+        viewModel.initialize()
 
         val doorAdapter = DoorAdapter(
             onDelete = { viewModel.onEvent(MainEvent.DeleteDoor(it)) },

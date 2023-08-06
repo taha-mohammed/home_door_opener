@@ -1,20 +1,17 @@
 package com.home.door.util
 
 import android.util.Log
-import com.burgstaller.okhttp.digest.Credentials
-import com.burgstaller.okhttp.digest.DigestAuthenticator
-import com.home.door.data.DoorEntity
 import com.burgstaller.okhttp.AuthenticationCacheInterceptor
 import com.burgstaller.okhttp.CachingAuthenticatorDecorator
 import com.burgstaller.okhttp.digest.CachingAuthenticator
+import com.burgstaller.okhttp.digest.Credentials
+import com.burgstaller.okhttp.digest.DigestAuthenticator
+import com.home.door.data.DoorEntity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.concurrent.ConcurrentHashMap
 
@@ -42,7 +39,6 @@ object DoorOpener {
             if (!response.isSuccessful) {
                 Log.e("TAG", "Response failed: " + response.message)
                 return@withContext Result.failure(Throwable(response.message))
-            } else {
             }
         } catch (e: Exception) {
             Log.e("TAG", "Error: " + e.message)

@@ -1,18 +1,16 @@
 package com.home.door
 
+import com.google.common.truth.Truth.assertThat
 import com.home.door.data.DoorEntity
 import com.home.door.repository.FakeDoorRepoImpl
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import com.google.common.truth.Truth.assertThat
 import com.home.door.util.FieldErrorState
 import com.home.door.util.MainEvent
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainCoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -37,6 +35,7 @@ class DoorViewModelTest {
 
     @Test
     fun insert() = runTest {
+        viewModel.initialize()
         val door = DoorEntity(id=0 ,name = "door1", ip = "192.168.1.1", user = "taha", password = "taha")
 
         var doors = listOf<DoorEntity>()
@@ -52,6 +51,7 @@ class DoorViewModelTest {
 
     @Test
     fun delete() = runTest {
+        viewModel.initialize()
         val door = DoorEntity(id=0 ,name = "door1", ip = "192.168.1.1", user = "taha", password = "taha")
 
         var doors = listOf<DoorEntity>()

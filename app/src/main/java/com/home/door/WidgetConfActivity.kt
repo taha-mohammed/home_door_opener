@@ -15,7 +15,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.home.door.data.DoorEntity
-import com.home.door.util.DoorPrefs
 import com.home.door.util.Graph
 import com.home.door.widget.updateAppWidget
 import kotlinx.coroutines.launch
