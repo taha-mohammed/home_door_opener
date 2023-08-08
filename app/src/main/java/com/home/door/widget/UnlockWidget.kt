@@ -8,6 +8,7 @@ import android.content.Intent
 import android.widget.RemoteViews
 import com.home.door.R
 import com.home.door.data.DoorEntity
+import com.home.door.util.Constants
 import com.home.door.util.DoorPrefs
 import com.home.door.util.Graph
 import com.home.door.util.toList
@@ -43,7 +44,7 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
 
 private fun getPendingIntent(context: Context, door: DoorEntity, widgetId: Int): PendingIntent {
     val intent = Intent(context, WidgetActionReceiver::class.java)
-    intent.action = "ClickAction$widgetId"
+    intent.action = Constants.WIDGET_CLICK_ACTION+widgetId
     intent.putExtra("door", door.toList().toTypedArray())
 
     return PendingIntent.getBroadcast(

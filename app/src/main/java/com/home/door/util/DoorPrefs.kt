@@ -7,16 +7,12 @@ class DoorPrefs(
     private val preferences: SharedPreferences
 ) {
 
-    companion object {
-        private const val PREF_PREFIX_KEY = "appwidget_"
-    }
-
     internal fun saveDoorPref(appWidgetId: Int, door: DoorEntity) {
         preferences.edit().apply {
-            putString(PREF_PREFIX_KEY + appWidgetId + "_name", door.name)
-            putString(PREF_PREFIX_KEY + appWidgetId + "_ip", door.ip)
-            putString(PREF_PREFIX_KEY + appWidgetId + "_user", door.user)
-            putString(PREF_PREFIX_KEY + appWidgetId + "_password", door.password)
+            putString(Constants.PREF_PREFIX_KEY + appWidgetId + "_name", door.name)
+            putString(Constants.PREF_PREFIX_KEY + appWidgetId + "_ip", door.ip)
+            putString(Constants.PREF_PREFIX_KEY + appWidgetId + "_user", door.user)
+            putString(Constants.PREF_PREFIX_KEY + appWidgetId + "_password", door.password)
             apply()
         }
     }
@@ -24,20 +20,20 @@ class DoorPrefs(
     internal fun loadDoorPref(appWidgetId: Int): DoorEntity {
         return preferences.let {
             DoorEntity(
-                name = it.getString(PREF_PREFIX_KEY + appWidgetId + "_name", null).orEmpty(),
-                ip = it.getString(PREF_PREFIX_KEY + appWidgetId + "_ip", null).orEmpty(),
-                user = it.getString(PREF_PREFIX_KEY + appWidgetId + "_user", null).orEmpty(),
-                password = it.getString(PREF_PREFIX_KEY + appWidgetId + "_password", null).orEmpty(),
+                name = it.getString(Constants.PREF_PREFIX_KEY + appWidgetId + "_name", null).orEmpty(),
+                ip = it.getString(Constants.PREF_PREFIX_KEY + appWidgetId + "_ip", null).orEmpty(),
+                user = it.getString(Constants.PREF_PREFIX_KEY + appWidgetId + "_user", null).orEmpty(),
+                password = it.getString(Constants.PREF_PREFIX_KEY + appWidgetId + "_password", null).orEmpty(),
             )
         }
     }
 
     internal fun deleteDoorPref(appWidgetId: Int) {
         preferences.edit().apply {
-            remove(PREF_PREFIX_KEY + appWidgetId + "_name")
-            remove(PREF_PREFIX_KEY + appWidgetId + "_ip")
-            remove(PREF_PREFIX_KEY + appWidgetId + "_user")
-            remove(PREF_PREFIX_KEY + appWidgetId + "_password")
+            remove(Constants.PREF_PREFIX_KEY + appWidgetId + "_name")
+            remove(Constants.PREF_PREFIX_KEY + appWidgetId + "_ip")
+            remove(Constants.PREF_PREFIX_KEY + appWidgetId + "_user")
+            remove(Constants.PREF_PREFIX_KEY + appWidgetId + "_password")
             apply()
         }
     }

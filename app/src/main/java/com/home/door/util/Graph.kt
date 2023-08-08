@@ -8,7 +8,6 @@ import com.home.door.repository.DoorRepoImpl
 
 object Graph {
 
-    private const val PREFS_NAME = "com.home.door.widget.UnlockWidget"
 
     private lateinit var database: AppDatabase
 
@@ -22,9 +21,9 @@ object Graph {
         DoorPrefs(preferences)
     }
     fun provide(context: Context) {
-        database = Room.databaseBuilder(context, AppDatabase::class.java, "data.db")
+        database = Room.databaseBuilder(context, AppDatabase::class.java, Constants.DATABASE_NAME)
             .build()
-        preferences = context.getSharedPreferences(PREFS_NAME, 0)
+        preferences = context.getSharedPreferences(Constants.PREFS_NAME, 0)
     }
 
 }
