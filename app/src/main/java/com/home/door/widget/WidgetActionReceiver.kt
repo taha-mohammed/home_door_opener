@@ -8,9 +8,8 @@ import com.home.door.R
 import com.home.door.util.DoorOpener
 import com.home.door.util.toDoor
 import com.home.door.util.toList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 
 class WidgetActionReceiver : BroadcastReceiver() {
 
@@ -18,8 +17,13 @@ class WidgetActionReceiver : BroadcastReceiver() {
         val door = intent.extras?.getStringArray("door")?.toList()?.toDoor() ?: return
         if (intent.action?.startsWith("ClickAction") == true) {
             val pendingResult = goAsync()
-            CoroutineScope(SupervisorJob()).launch {
-                DoorOpener.unlockDoor(door.toList().toDoor())
+            runBlocking {
+                Toast.makeText(
+                    context,
+                    "receive",
+                    Toast.LENGTH_SHORT
+                ).show()
+                async { DoorOpener.unlockDoor(door.toList().toDoor()) }.await()
                     .onSuccess {
                         Toast.makeText(
                             context,
@@ -32,6 +36,7 @@ class WidgetActionReceiver : BroadcastReceiver() {
                         Toast.makeText(context, it.localizedMessage, Toast.LENGTH_SHORT).show()
                         pendingResult.finish()
                     }
+
             }
         }
     }
