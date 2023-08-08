@@ -1,4 +1,4 @@
-package com.home.door.data
+package com.home.door.data.room
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

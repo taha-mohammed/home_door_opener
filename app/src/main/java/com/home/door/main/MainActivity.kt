@@ -1,4 +1,4 @@
-package com.home.door
+package com.home.door.main
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -17,10 +17,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.textfield.TextInputEditText
-import com.home.door.data.DoorEntity
+import com.home.door.R
+import com.home.door.data.room.DoorEntity
 import com.home.door.databinding.ActivityMainBinding
 import com.home.door.util.Graph
-import com.home.door.util.MainEvent
 import com.home.door.widget.UnlockWidget
 import com.home.door.widget.updateAppWidget
 import kotlinx.coroutines.Dispatchers

@@ -1,15 +1,15 @@
-package com.home.door.repository
+package com.home.door.repository.door
 
-import com.home.door.data.DoorDao
-import com.home.door.data.DoorEntity
-import com.home.door.data.DoorRepo
+import com.home.door.data.room.DoorDao
+import com.home.door.data.room.DoorEntity
+import com.home.door.repository.DoorRepo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 
-class DoorRepoImpl constructor(
+class DefaultDoorRepo constructor(
     private val doorDao: DoorDao,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : DoorRepo {

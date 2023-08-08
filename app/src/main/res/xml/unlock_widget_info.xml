@@ -5,7 +5,7 @@
     android:previewImage="@mipmap/ic_widget_preview"
     android:initialLayout="@layout/unlock_widget"
     android:description="@string/app_widget_description"
-    android:configure="com.home.door.WidgetConfActivity"
+    android:configure="com.home.door.widget.WidgetConfActivity"
     android:widgetCategory="home_screen"
     android:previewLayout="@layout/unlock_widget"
     android:targetCellHeight="1"

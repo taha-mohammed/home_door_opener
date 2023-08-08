@@ -1,6 +1,6 @@
-package com.home.door.util
+package com.home.door.main
 
-import com.home.door.data.DoorEntity
+import com.home.door.data.room.DoorEntity
 
 sealed class MainEvent {
     data class DeleteDoor(val door: DoorEntity): MainEvent()

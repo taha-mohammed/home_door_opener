@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.home.door.data.DoorEntity
+import com.home.door.data.room.DoorEntity
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before

@@ -1,5 +1,6 @@
-package com.home.door.data
+package com.home.door.repository
 
+import com.home.door.data.room.DoorEntity
 import kotlinx.coroutines.flow.Flow
 
 interface DoorRepo {

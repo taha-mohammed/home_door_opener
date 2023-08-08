@@ -7,7 +7,10 @@ import androidx.test.filters.SmallTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import com.google.common.truth.Truth.assertThat
-import com.home.door.repository.DoorRepoImpl
+import com.home.door.data.room.AppDatabase
+import com.home.door.data.room.DoorEntity
+import com.home.door.repository.DoorRepo
+import com.home.door.repository.door.DefaultDoorRepo
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.After
@@ -30,7 +33,7 @@ class DoorRepoTest {
             ApplicationProvider.getApplicationContext(),
             AppDatabase::class.java
         ).allowMainThreadQueries().build()
-        repo = DoorRepoImpl(
+        repo = DefaultDoorRepo(
             database.doorDao(),
             dispatcher
         )

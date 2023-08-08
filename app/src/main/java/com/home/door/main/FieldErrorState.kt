@@ -1,4 +1,4 @@
-package com.home.door.util
+package com.home.door.main
 
 import androidx.annotation.StringRes
 

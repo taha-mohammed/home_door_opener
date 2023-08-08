@@ -1,7 +1,7 @@
 package com.home.door.util
 
 import android.content.SharedPreferences
-import com.home.door.data.DoorEntity
+import com.home.door.data.room.DoorEntity
 
 class DoorPrefs(
     private val preferences: SharedPreferences

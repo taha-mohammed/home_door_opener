@@ -1,10 +1,11 @@
 package com.home.door
 
 import com.google.common.truth.Truth.assertThat
-import com.home.door.data.DoorEntity
-import com.home.door.repository.FakeDoorRepoImpl
-import com.home.door.util.FieldErrorState
-import com.home.door.util.MainEvent
+import com.home.door.data.room.DoorEntity
+import com.home.door.main.DoorViewModel
+import com.home.door.repository.door.FakeDoorRepo
+import com.home.door.main.FieldErrorState
+import com.home.door.main.MainEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -25,7 +26,7 @@ class DoorViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
-        viewModel = DoorViewModel(FakeDoorRepoImpl(dispatcher))
+        viewModel = DoorViewModel(FakeDoorRepo(dispatcher))
     }
 
     @After

@@ -1,7 +1,8 @@
 package com.home.door.util
 
 import com.home.door.R
-import com.home.door.data.DoorEntity
+import com.home.door.data.room.DoorEntity
+import com.home.door.main.FieldErrorState
 
 object DoorValidator {
 

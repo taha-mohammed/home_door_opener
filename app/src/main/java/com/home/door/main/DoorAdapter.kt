@@ -1,4 +1,4 @@
-package com.home.door
+package com.home.door.main
 
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +10,8 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.home.door.data.DoorEntity
+import com.home.door.R
+import com.home.door.data.room.DoorEntity
 
 class DoorAdapter(
     private val onDelete: (door: DoorEntity) -> Unit,

@@ -3,8 +3,8 @@ package com.home.door.util
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.room.Room
-import com.home.door.data.AppDatabase
-import com.home.door.repository.DoorRepoImpl
+import com.home.door.data.room.AppDatabase
+import com.home.door.repository.door.DefaultDoorRepo
 
 object Graph {
 
@@ -12,7 +12,7 @@ object Graph {
     private lateinit var database: AppDatabase
 
     val doorRepo by lazy {
-        DoorRepoImpl(database.doorDao())
+        DefaultDoorRepo(database.doorDao())
     }
 
     private lateinit var preferences: SharedPreferences

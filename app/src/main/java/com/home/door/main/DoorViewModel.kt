@@ -1,14 +1,12 @@
-package com.home.door
+package com.home.door.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.home.door.data.DoorEntity
-import com.home.door.data.DoorRepo
+import com.home.door.data.room.DoorEntity
+import com.home.door.repository.DoorRepo
 import com.home.door.util.DoorOpener
 import com.home.door.util.DoorValidator
-import com.home.door.util.FieldErrorState
 import com.home.door.util.Graph
-import com.home.door.util.MainEvent
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -7,9 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
 import com.home.door.R
-import com.home.door.data.DoorEntity
+import com.home.door.data.room.DoorEntity
 import com.home.door.util.Constants
-import com.home.door.util.DoorPrefs
 import com.home.door.util.Graph
 import com.home.door.util.toList
 

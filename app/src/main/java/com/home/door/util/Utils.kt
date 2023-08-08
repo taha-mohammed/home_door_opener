@@ -1,6 +1,6 @@
 package com.home.door.util
 
-import com.home.door.data.DoorEntity
+import com.home.door.data.room.DoorEntity
 
 fun DoorEntity.toList(): List<String> {
     return listOf(id.toString(), name, ip, user, password)

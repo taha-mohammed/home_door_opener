@@ -1,4 +1,4 @@
-package com.home.door
+package com.home.door.widget
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
@@ -14,9 +14,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.home.door.data.DoorEntity
+import com.home.door.R
+import com.home.door.data.room.DoorEntity
 import com.home.door.util.Graph
-import com.home.door.widget.updateAppWidget
 import kotlinx.coroutines.launch
 
 class WidgetConfActivity : AppCompatActivity() {
@@ -55,7 +55,7 @@ class WidgetConfActivity : AppCompatActivity() {
 
 class ConfAdapter(
     private val items: List<DoorEntity>,
-    val onClick: (door:DoorEntity)-> Unit
+    val onClick: (door: DoorEntity)-> Unit
 ) : RecyclerView.Adapter<ConfAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView = view.findViewById(R.id.text_view)
