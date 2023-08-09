@@ -2,7 +2,6 @@ package com.home.door.main
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -28,6 +27,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 class MainActivity : AppCompatActivity() {
 
@@ -55,7 +56,27 @@ class MainActivity : AppCompatActivity() {
 
         val doorAdapter = DoorAdapter(
             onDelete = { viewModel.onEvent(MainEvent.DeleteDoor(it)) },
-            onAddShortcut = { pinWidget(this, it) },
+            onAddShortcut = {
+                pinWidget { id ->
+                    if (id == null) {
+                        Toast.makeText(
+                            this,
+                            getString(R.string.shortcut_failed),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@pinWidget
+                    }
+                    Graph.doorPrefs.saveDoorPref(id, it)
+                    Log.d("TAG", "pinWidget: door data is saved")
+                    updateAppWidget(this@MainActivity, AppWidgetManager.getInstance(this), id)
+                    Log.d("TAG", "pinWidget: widget is updated")
+                    Toast.makeText(
+                        this,
+                        getString(R.string.pin_toast),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            },
             onUnlock = { viewModel.onEvent(MainEvent.UnlockDoor(it)) }
         )
         binding.recycler.adapter = doorAdapter
@@ -88,9 +109,9 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.distinctUntilChanged { old, new -> old.doors == new.doors }
-                    .collect { state->
-                    doorAdapter.submitList(state.doors)
-                }
+                    .collect { state ->
+                        doorAdapter.submitList(state.doors)
+                    }
             }
         }
 
@@ -153,38 +174,31 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun pinWidget(context: Context, door: DoorEntity) {
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        val provider = ComponentName(context, UnlockWidget::class.java)
+    private fun pinWidget(onComplete: (Int?) -> Unit) {
+        val appWidgetManager = AppWidgetManager.getInstance(this)
+        val provider = ComponentName(this, UnlockWidget::class.java)
         val widgetsCount = appWidgetManager.getAppWidgetIds(provider).size
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O
             || !appWidgetManager.isRequestPinAppWidgetSupported
         ) {
-            Toast.makeText(context, getString(R.string.feature_not_supported), Toast.LENGTH_SHORT)
+            Toast.makeText(this, getString(R.string.feature_not_supported), Toast.LENGTH_SHORT)
                 .show()
             return
         }
-        val result = appWidgetManager.requestPinAppWidget(provider, null, null)
-        if (!result) {
-            Toast.makeText(context, getString(R.string.shortcut_failed), Toast.LENGTH_SHORT)
-                .show()
-        }
-        Toast.makeText(
-            context,
-            getString(R.string.pin_toast),
-            Toast.LENGTH_SHORT
-        ).show()
-        lifecycleScope.launch(Dispatchers.IO) {
-            var currWidgets = appWidgetManager.getAppWidgetIds(provider)
-            while (currWidgets.size <= widgetsCount) {
-                currWidgets = appWidgetManager.getAppWidgetIds(provider)
-            }
-            currWidgets.last().let {
-                Graph.doorPrefs.saveDoorPref(it, door)
-                Log.d("TAG", "pinWidget: door data is saved")
-                updateAppWidget(context, appWidgetManager, it)
-                Log.d("TAG", "pinWidget: widget is updated")
+        appWidgetManager.requestPinAppWidget(provider, null, null)
+        lifecycleScope.launch(Dispatchers.Default) {
+            withTimeoutOrNull(5000L) {
+                var currWidgets: IntArray
+                do {
+                    currWidgets = appWidgetManager.getAppWidgetIds(provider)
+                } while (currWidgets.size <= widgetsCount)
+
+                currWidgets.last()
+            }.also {
+                withContext(Dispatchers.Main) {
+                    onComplete(it)
+                }
             }
         }
     }
