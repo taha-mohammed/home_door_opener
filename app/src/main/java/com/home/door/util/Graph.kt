@@ -1,7 +1,6 @@
 package com.home.door.util
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
@@ -24,15 +23,9 @@ object Graph {
         DefaultWidgetRepo(dataStore)
     }
 
-    private lateinit var preferences: SharedPreferences
-
-    val doorPrefs by lazy {
-        DoorPrefs(preferences)
-    }
     fun provide(context: Context) {
         database = Room.databaseBuilder(context, AppDatabase::class.java, Constants.DATABASE_NAME)
             .build()
-        preferences = context.getSharedPreferences(Constants.PREFS_NAME, 0)
         dataStore = DataStoreFactory.create(
             serializer = AppWidgetsSerializer
         ) {
