@@ -6,6 +6,7 @@ import com.home.door.main.DoorViewModel
 import com.home.door.repository.door.FakeDoorRepo
 import com.home.door.main.FieldErrorState
 import com.home.door.main.MainEvent
+import com.home.door.repository.widget.FakeWidgetRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -26,7 +27,10 @@ class DoorViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
-        viewModel = DoorViewModel(FakeDoorRepo(dispatcher))
+        viewModel = DoorViewModel(
+            FakeDoorRepo(dispatcher),
+            FakeWidgetRepo()
+        )
     }
 
     @After
@@ -91,7 +95,7 @@ class DoorViewModelTest {
         var validity: Boolean? = null
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect{
-                validity = it.isAdded
+                validity = it.isDoorAdded
             }
         }
         viewModel.onEvent(MainEvent.AddDoor(door))

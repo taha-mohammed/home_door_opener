@@ -4,7 +4,6 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +16,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.home.door.R
 import com.home.door.data.room.DoorEntity
 import com.home.door.util.Graph
+import com.home.door.util.toWidget
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class WidgetConfActivity : AppCompatActivity() {
 
@@ -32,10 +33,10 @@ class WidgetConfActivity : AppCompatActivity() {
         val recycler = findViewById<RecyclerView>(R.id.conf_recycler)
         recycler.layoutManager = LinearLayoutManager(this)
         val onClick:(door: DoorEntity) -> Unit = {
-            Graph.doorPrefs.saveDoorPref(widgetId, it)
-            Log.d("TAG", "pinWidget: door data is saved")
+            runBlocking {
+                Graph.widgetRepo.addWidget(it.toWidget(widgetId))
+            }
             updateAppWidget(this, AppWidgetManager.getInstance(this), widgetId)
-            Log.d("TAG", "pinWidget: widget is updated")
 
             val resultIntent = Intent()
             resultIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)

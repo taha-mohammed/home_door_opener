@@ -5,12 +5,16 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.widget.RemoteViews
 import com.home.door.R
-import com.home.door.data.room.DoorEntity
+import com.home.door.data.widget.Widget
 import com.home.door.util.Constants
 import com.home.door.util.Graph
+import com.home.door.util.toDoor
 import com.home.door.util.toList
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 
 
 class UnlockWidget : AppWidgetProvider() {
@@ -23,28 +27,35 @@ class UnlockWidget : AppWidgetProvider() {
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         // When the user deletes the widget, delete the preference associated with it.
-        for (appWidgetId in appWidgetIds) {
-            Graph.doorPrefs.deleteDoorPref(appWidgetId)
+        runBlocking {
+            for (appWidgetId in appWidgetIds) {
+                Graph.widgetRepo.deleteWidget(appWidgetId)
+            }
         }
     }
 }
 
 internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-    val door = Graph.doorPrefs.loadDoorPref(appWidgetId)
+    val widget = runBlocking {
+        Graph.widgetRepo.getWidget(appWidgetId)
+    }
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.unlock_widget).apply {
-        setTextViewText(R.id.appwidget_text, door.name)
-        setOnClickPendingIntent(R.id.appwidget, getPendingIntent(context, door, appWidgetId) )
+        Log.d("Widget", "updateAppWidget: $widget")
+        widget?.let {
+            setTextViewText(R.id.appwidget_text, it.doorName)
+            setOnClickPendingIntent(R.id.appwidget, getPendingIntent(context, it) )
+        }
     }
-
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views)
+
 }
 
-private fun getPendingIntent(context: Context, door: DoorEntity, widgetId: Int): PendingIntent {
+private fun getPendingIntent(context: Context, widget: Widget): PendingIntent {
     val intent = Intent(context, WidgetActionReceiver::class.java)
-    intent.action = Constants.WIDGET_CLICK_ACTION+widgetId
-    intent.putExtra("door", door.toList().toTypedArray())
+    intent.action = Constants.WIDGET_CLICK_ACTION+widget.widgetId
+    intent.putExtra(Constants.EXTRA_DOOR, widget.toDoor().toList().toTypedArray())
 
     return PendingIntent.getBroadcast(
         context,

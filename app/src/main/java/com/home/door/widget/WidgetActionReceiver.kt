@@ -15,7 +15,7 @@ import kotlinx.coroutines.runBlocking
 class WidgetActionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val door = intent.extras?.getStringArray("door")?.toList()?.toDoor() ?: return
+        val door = intent.extras?.getStringArray(Constants.EXTRA_DOOR)?.toList()?.toDoor() ?: return
         if (intent.action?.startsWith(Constants.WIDGET_CLICK_ACTION) == true) {
             val pendingResult = goAsync()
             runBlocking {

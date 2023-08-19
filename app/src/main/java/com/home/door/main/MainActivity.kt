@@ -19,7 +19,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.home.door.R
 import com.home.door.data.room.DoorEntity
 import com.home.door.databinding.ActivityMainBinding
-import com.home.door.util.Graph
+import com.home.door.util.toWidget
 import com.home.door.widget.UnlockWidget
 import com.home.door.widget.updateAppWidget
 import kotlinx.coroutines.Dispatchers
@@ -66,15 +66,7 @@ class MainActivity : AppCompatActivity() {
                         ).show()
                         return@pinWidget
                     }
-                    Graph.doorPrefs.saveDoorPref(id, it)
-                    Log.d("TAG", "pinWidget: door data is saved")
-                    updateAppWidget(this@MainActivity, AppWidgetManager.getInstance(this), id)
-                    Log.d("TAG", "pinWidget: widget is updated")
-                    Toast.makeText(
-                        this,
-                        getString(R.string.pin_toast),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    viewModel.onEvent(MainEvent.AddWidget(it.toWidget(id)))
                 }
             },
             onUnlock = { viewModel.onEvent(MainEvent.UnlockDoor(it)) }
@@ -93,7 +85,7 @@ class MainActivity : AppCompatActivity() {
                                     getString(R.string.door_opened),
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                viewModel.onEvent(MainEvent.DoorUnlocked)
+                                viewModel.onEvent(MainEvent.ResetState)
                             }
                             ?.onFailure {
                                 Toast.makeText(
@@ -101,9 +93,28 @@ class MainActivity : AppCompatActivity() {
                                     it.localizedMessage,
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                viewModel.onEvent(MainEvent.DoorUnlocked)
+                                viewModel.onEvent(MainEvent.ResetState)
                             }
                     }
+            }
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.distinctUntilChanged { _, new ->
+                    new.deletedWidgets.isEmpty() and (new.addedWidget == null)
+                }.collect { state ->
+                    if (state.addedWidget != null){
+                        Log.d("MainActivity", "onCreate: onWidgetAdded")
+                        updateAppWidget(this@MainActivity, AppWidgetManager.getInstance(this@MainActivity), state.addedWidget)
+                        Toast.makeText(
+                            this@MainActivity,
+                            getString(R.string.pin_toast),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    // TODO: Delete Widgets with these ids
+                    viewModel.onEvent(MainEvent.ResetState)
+                }
             }
         }
         lifecycleScope.launch {
@@ -119,9 +130,9 @@ class MainActivity : AppCompatActivity() {
             showNewDoorDialog { viewModel.onEvent(MainEvent.AddDoor(it)) }
             dialogJob = lifecycleScope.launch {
                 viewModel.uiState.collect { state ->
-                    if (state.isAdded) {
+                    if (state.isDoorAdded) {
                         dialog.cancel()
-                        viewModel.onEvent(MainEvent.DoorAdded)
+                        viewModel.onEvent(MainEvent.ResetState)
                         cancel()
                     }
                     with(state.validationState) {
