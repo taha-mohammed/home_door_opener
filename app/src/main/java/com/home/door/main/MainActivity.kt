@@ -21,6 +21,7 @@ import com.home.door.data.room.DoorEntity
 import com.home.door.databinding.ActivityMainBinding
 import com.home.door.util.toWidget
 import com.home.door.widget.UnlockWidget
+import com.home.door.widget.invalidateWidgets
 import com.home.door.widget.updateAppWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -103,16 +104,19 @@ class MainActivity : AppCompatActivity() {
                 viewModel.uiState.distinctUntilChanged { _, new ->
                     new.deletedWidgets.isEmpty() and (new.addedWidget == null)
                 }.collect { state ->
+                    val appWidgetManager = AppWidgetManager.getInstance(this@MainActivity)
                     if (state.addedWidget != null){
                         Log.d("MainActivity", "onCreate: onWidgetAdded")
-                        updateAppWidget(this@MainActivity, AppWidgetManager.getInstance(this@MainActivity), state.addedWidget)
+                        updateAppWidget(this@MainActivity, appWidgetManager, state.addedWidget)
                         Toast.makeText(
                             this@MainActivity,
                             getString(R.string.pin_toast),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                    // TODO: Delete Widgets with these ids
+                    if (state.deletedWidgets.isNotEmpty()){
+                        invalidateWidgets(this@MainActivity, appWidgetManager, state.deletedWidgets)
+                    }
                     viewModel.onEvent(MainEvent.ResetState)
                 }
             }

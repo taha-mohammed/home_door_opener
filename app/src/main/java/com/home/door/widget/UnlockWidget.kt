@@ -13,7 +13,6 @@ import com.home.door.util.Constants
 import com.home.door.util.Graph
 import com.home.door.util.toDoor
 import com.home.door.util.toList
-import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
 
@@ -50,6 +49,12 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views)
 
+}
+
+internal fun invalidateWidgets(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: List<Int>) {
+    val views = RemoteViews(context.packageName, R.layout.invalid_widget)
+    // Instruct the widget manager to update the widget
+    appWidgetManager.updateAppWidget(appWidgetIds.toIntArray(), views)
 }
 
 private fun getPendingIntent(context: Context, widget: Widget): PendingIntent {

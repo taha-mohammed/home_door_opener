@@ -24,4 +24,5 @@
     <string name="feature_not_supported">هاتفك لا يدعم هذه الميزة!</string>
     <string name="shortcut_failed">فشل في اضافة الاختصار الى الشاشة الرئيسية!</string>
     <string name="door_opened">الباب مفتوح</string>
+    <string name="invalid_widget_text">هذا الاختصار غير صالح الرجاء حذفه</string>
 </resources>

@@ -23,4 +23,5 @@
     <string name="feature_not_supported">your phone doesn\'t support this feature!</string>
     <string name="shortcut_failed">adding shortcut to home-screen failed!</string>
     <string name="door_opened">the door is opened</string>
+    <string name="invalid_widget_text">this widget is not valid delete it please</string>
 </resources>
