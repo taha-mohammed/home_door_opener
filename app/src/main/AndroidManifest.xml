@@ -16,6 +16,13 @@
         android:theme="@style/Theme.HomeDoor"
         tools:targetApi="31">
         <activity
+            android:name=".widget.WidgetActionActivity"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:noHistory="true"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.AppCompat.Translucent" />
+        <activity
             android:name=".widget.WidgetConfActivity"
             android:exported="false" />
 

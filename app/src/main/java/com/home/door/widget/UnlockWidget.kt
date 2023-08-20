@@ -58,11 +58,11 @@ internal fun invalidateWidgets(context: Context, appWidgetManager: AppWidgetMana
 }
 
 private fun getPendingIntent(context: Context, widget: Widget): PendingIntent {
-    val intent = Intent(context, WidgetActionReceiver::class.java)
+    val intent = Intent(context, WidgetActionActivity::class.java)
     intent.action = Constants.WIDGET_CLICK_ACTION+widget.widgetId
     intent.putExtra(Constants.EXTRA_DOOR, widget.toDoor().toList().toTypedArray())
 
-    return PendingIntent.getBroadcast(
+    return PendingIntent.getActivity(
         context,
         0,
         intent,

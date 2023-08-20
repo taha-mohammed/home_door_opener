@@ -25,4 +25,6 @@
     <string name="shortcut_failed">فشل في اضافة الاختصار الى الشاشة الرئيسية!</string>
     <string name="door_opened">الباب مفتوح</string>
     <string name="invalid_widget_text">هذا الاختصار غير صالح الرجاء حذفه</string>
+    <string name="add_widget_again">" وأضافته مجددا!"</string>
+    <string name="confirm_dialog_title">هل أنت متأكد؟</string>
 </resources>

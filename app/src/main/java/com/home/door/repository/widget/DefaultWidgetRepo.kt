@@ -1,6 +1,5 @@
 package com.home.door.repository.widget
 
-import android.util.Log
 import androidx.datastore.core.DataStore
 import com.home.door.data.widget.AppWidgets
 import com.home.door.data.widget.Widget
