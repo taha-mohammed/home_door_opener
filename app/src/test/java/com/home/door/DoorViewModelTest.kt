@@ -7,6 +7,7 @@ import com.home.door.repository.door.FakeDoorRepo
 import com.home.door.main.FieldErrorState
 import com.home.door.main.MainEvent
 import com.home.door.repository.widget.FakeWidgetRepo
+import com.home.door.util.toWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -36,10 +37,11 @@ class DoorViewModelTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+
     }
 
     @Test
-    fun insert() = runTest {
+    fun insertDoor() = runTest {
         viewModel.initialize()
         val door = DoorEntity(id=0 ,name = "door1", ip = "192.168.1.1", user = "taha", password = "taha")
 
@@ -55,7 +57,7 @@ class DoorViewModelTest {
     }
 
     @Test
-    fun delete() = runTest {
+    fun deleteDoor() = runTest {
         viewModel.initialize()
         val door = DoorEntity(id=0 ,name = "door1", ip = "192.168.1.1", user = "taha", password = "taha")
 
@@ -101,5 +103,46 @@ class DoorViewModelTest {
         viewModel.onEvent(MainEvent.AddDoor(door))
 
         assertThat(validity).isTrue()
+    }
+
+    @Test
+    fun addWidget() = runTest {
+        val door = DoorEntity(id=1 ,name = "taha", ip = "192.168.1.1", user = "taha", password = "taha")
+        val widget = door.toWidget(0)
+
+        var addedWidget: Int? = null
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {
+                addedWidget = it.addedWidget
+            }
+        }
+
+        viewModel.onEvent(MainEvent.AddDoor(door))
+        viewModel.onEvent(MainEvent.AddWidget(widget))
+
+        this.advanceUntilIdle()
+
+        assertThat(addedWidget).isEqualTo(widget.widgetId)
+    }
+
+    @Test
+    fun `add widgets and remove their door, widget removed`() = runTest {
+        val door = DoorEntity(id=1 ,name = "taha", ip = "192.168.1.1", user = "taha", password = "taha")
+
+        var deletedWidgets: List<Int> = listOf()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {
+                deletedWidgets = it.deletedWidgets
+            }
+        }
+
+        viewModel.onEvent(MainEvent.AddDoor(door))
+        viewModel.onEvent(MainEvent.AddWidget(door.toWidget(1)))
+        viewModel.onEvent(MainEvent.AddWidget(door.toWidget(2)))
+        viewModel.onEvent(MainEvent.AddWidget(door.toWidget(3)))
+
+        viewModel.onEvent(MainEvent.DeleteDoor(door))
+
+        assertThat(deletedWidgets).containsAtLeast(1, 2, 3)
     }
 }
