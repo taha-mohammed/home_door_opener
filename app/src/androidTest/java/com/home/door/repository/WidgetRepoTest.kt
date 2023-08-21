@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -42,14 +43,14 @@ class WidgetRepoTest {
         doorPassword = "test-password"
     )
 
-    @After
-    fun teardown() {
+    @Before
+    fun setup() {
         testScope.launch {
             context.dataStore.updateData {
                 AppWidgets()
             }
         }
-        testScope.cancel()
+        testScope.advanceUntilIdle()
     }
 
     @Test
@@ -91,4 +92,24 @@ class WidgetRepoTest {
         val result2 = widgetRepo.getWidget(2)
         assertThat(result2).isEqualTo(sampleWidget2)
     }
+
+    @Test
+    fun addDuplicatedWidget_updated() = testScope.runTest {
+        widgetRepo.addWidget(sampleWidget)
+        this.advanceUntilIdle()
+        widgetRepo.addWidget(sampleWidget.copy(doorName = "Test Door 2"))
+
+        val result = widgetRepo.getWidget(0)
+        assertThat(result).isEqualTo(sampleWidget.copy(doorName = "Test Door 2"))
+    }
+
+    @Test
+    fun deleteNotExistedWidget_nothing_happen() = testScope.runTest {
+        widgetRepo.deleteWidget(2)
+        this.advanceUntilIdle()
+
+        val result = widgetRepo.getWidget(0)
+        assertThat(result).isEqualTo(null)
+    }
+
 }

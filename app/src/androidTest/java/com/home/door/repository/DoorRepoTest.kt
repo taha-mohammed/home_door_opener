@@ -95,4 +95,37 @@ class DoorRepoTest {
 
         Truth.assertThat(doors).isEmpty()
     }
+
+    @Test
+    fun insertDuplicatedDoor_ignored() = runTest(dispatcher.scheduler) {
+        val door = DoorEntity(id = 1, name = "door1", ip = "192.168.1.1", user = "taha", password = "taha")
+        repo.insertDoors(listOf(door))
+
+        repo.getDoors().first().let { result ->
+            repo.insertDoors(result.map { it.copy(name = "door2") })
+        }
+
+        val doors = repo.getDoors().first()
+
+        Truth.assertThat(doors).hasSize(1)
+        Truth.assertThat(doors.first().name).isEqualTo("door1")
+    }
+
+    @Test
+    fun deleteNotExistedDoor_nothing_happen() = runTest(dispatcher.scheduler) {
+        DoorEntity(
+            id = 0,
+            name = "door1",
+            ip = "192.168.1.1",
+            user = "taha",
+            password = "taha"
+        ).let {
+            repo.deleteDoor(it)
+        }
+
+        val doors = repo.getDoors().first()
+
+        Truth.assertThat(doors).isEmpty()
+    }
+
 }

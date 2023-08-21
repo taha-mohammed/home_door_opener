@@ -104,7 +104,6 @@ class DoorViewModel(
         viewModelScope.launch {
             try {
                 widgetRepo.addWidget(widget)
-                Log.d("ViewModel", "addWidget: Adding widget")
                 _uiState.update {previous ->
                     previous.copy(addedWidget = widget.widgetId)
                 }

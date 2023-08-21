@@ -120,8 +120,6 @@ class DoorViewModelTest {
         viewModel.onEvent(MainEvent.AddDoor(door))
         viewModel.onEvent(MainEvent.AddWidget(widget))
 
-        this.advanceUntilIdle()
-
         assertThat(addedWidget).isEqualTo(widget.widgetId)
     }
 

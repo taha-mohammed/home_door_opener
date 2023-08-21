@@ -16,8 +16,10 @@ class DefaultWidgetRepo(
     }
 
     override suspend fun addWidget(widget: Widget) {
-        dataStore.updateData {
-            AppWidgets(it.widgets + widget)
+        dataStore.updateData { appWidgets ->
+            appWidgets.widgets.filter { it.widgetId != widget.widgetId }.run {
+                AppWidgets(this + widget)
+            }
         }
     }
 
