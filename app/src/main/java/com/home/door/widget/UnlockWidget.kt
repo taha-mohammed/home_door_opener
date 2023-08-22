@@ -37,15 +37,15 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
     val widget = runBlocking {
         Graph.widgetRepo.getWidget(appWidgetId)
     }
-    // Construct the RemoteViews object
-    val views = RemoteViews(context.packageName, R.layout.unlock_widget).apply {
-        widget?.let {
+    widget?.let {
+        // Construct the RemoteViews object
+        val views = RemoteViews(context.packageName, R.layout.unlock_widget).apply {
             setTextViewText(R.id.appwidget_text, it.doorName)
             setOnClickPendingIntent(R.id.appwidget, getPendingIntent(context, it) )
         }
+        // Instruct the widget manager to update the widget
+        appWidgetManager.updateAppWidget(appWidgetId, views)
     }
-    // Instruct the widget manager to update the widget
-    appWidgetManager.updateAppWidget(appWidgetId, views)
 
 }
 
