@@ -15,8 +15,8 @@ class FakeDoorRepo(private val ioDispatcher: CoroutineDispatcher = Dispatchers.I
 
     override fun getDoors(): Flow<List<DoorEntity>> = flow
 
-    override suspend fun getDoor(id: String): DoorEntity {
-        TODO("Not yet implemented")
+    override suspend fun getDoor(id: String): DoorEntity = withContext(ioDispatcher) {
+        doorList.first { it.id == id.toInt() }
     }
 
     override suspend fun insertDoors(doors: List<DoorEntity>) = withContext(ioDispatcher) {

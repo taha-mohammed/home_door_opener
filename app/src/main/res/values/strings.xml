@@ -26,4 +26,5 @@
     <string name="invalid_widget_text">this widget is not valid delete it please</string>
     <string name="add_widget_again">" and add it again!"</string>
     <string name="confirm_dialog_title">Are you sure?</string>
+    <string name="widget_conf_label">Widget Configuration</string>
 </resources>

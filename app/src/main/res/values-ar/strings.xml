@@ -27,4 +27,5 @@
     <string name="invalid_widget_text">هذا الاختصار غير صالح الرجاء حذفه</string>
     <string name="add_widget_again">" وأضافته مجددا!"</string>
     <string name="confirm_dialog_title">هل أنت متأكد؟</string>
+    <string name="widget_conf_label">إعداد الاختصار</string>
 </resources>

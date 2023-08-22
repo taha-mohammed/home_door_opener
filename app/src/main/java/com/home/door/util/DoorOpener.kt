@@ -1,6 +1,5 @@
 package com.home.door.util
 
-import android.util.Log
 import com.burgstaller.okhttp.AuthenticationCacheInterceptor
 import com.burgstaller.okhttp.CachingAuthenticatorDecorator
 import com.burgstaller.okhttp.digest.CachingAuthenticator
@@ -37,11 +36,9 @@ object DoorOpener {
         try {
             val response = client.newCall(request).execute()
             if (!response.isSuccessful) {
-                Log.e("TAG", "Response failed: " + response.message)
                 return@withContext Result.failure(Throwable(response.message))
             }
         } catch (e: Exception) {
-            Log.e("TAG", "Error: " + e.message)
             return@withContext Result.failure(e)
         }
         Result.success(Unit)

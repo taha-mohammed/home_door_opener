@@ -1,6 +1,5 @@
 package com.home.door.main
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.home.door.data.room.DoorEntity
@@ -26,7 +25,7 @@ data class MainUiState(
 )
 
 class DoorViewModel(
-    private val repository: DoorRepo = Graph.doorRepo,
+    private val doorRepo: DoorRepo = Graph.doorRepo,
     private val widgetRepo: WidgetRepo = Graph.widgetRepo
 ) : ViewModel() {
 
@@ -40,7 +39,7 @@ class DoorViewModel(
         if (initJob != null)
             return
         initJob = viewModelScope.launch {
-            repository.getDoors().collect {
+            doorRepo.getDoors().collect {
                 _uiState.update {previous ->
                     previous.copy(doors = it)
                 }
@@ -82,7 +81,7 @@ class DoorViewModel(
                 }
                 return@launch
             }
-            repository.insertDoors(listOf(door))
+            doorRepo.insertDoors(listOf(door))
             _uiState.update {previous ->
                 previous.copy(isDoorAdded = true)
             }
@@ -91,7 +90,7 @@ class DoorViewModel(
 
     private fun deleteDoor(door: DoorEntity) {
         viewModelScope.launch {
-            repository.deleteDoor(door)
+            doorRepo.deleteDoor(door)
             widgetRepo.deleteWidgetsByDoorId(door.id).let {
                 _uiState.update {previous ->
                     previous.copy(deletedWidgets = it)
@@ -102,13 +101,11 @@ class DoorViewModel(
 
     private fun addWidget(widget: Widget) {
         viewModelScope.launch {
-            try {
+            if (doorRepo.getDoor(widget.doorId.toString()) != null) {
                 widgetRepo.addWidget(widget)
                 _uiState.update {previous ->
                     previous.copy(addedWidget = widget.widgetId)
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
     }

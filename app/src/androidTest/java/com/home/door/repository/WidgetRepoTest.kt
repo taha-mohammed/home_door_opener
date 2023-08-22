@@ -11,12 +11,10 @@ import com.home.door.data.widget.AppWidgetsSerializer
 import com.home.door.data.widget.Widget
 import com.home.door.repository.widget.DefaultWidgetRepo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,7 +54,6 @@ class WidgetRepoTest {
     @Test
     fun addWidget() = testScope.runTest {
         widgetRepo.addWidget(sampleWidget)
-        this.advanceUntilIdle()
 
         val result = widgetRepo.getWidget(0)
         assertThat(result).isEqualTo(sampleWidget)
@@ -65,13 +62,11 @@ class WidgetRepoTest {
     @Test
     fun deleteWidget() = testScope.runTest {
         widgetRepo.addWidget(sampleWidget)
-        this.advanceUntilIdle()
 
         widgetRepo.deleteWidget(0)
-        this.advanceUntilIdle()
 
         val result = widgetRepo.getWidget(0)
-        assertThat(result).isEqualTo(null)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -81,13 +76,11 @@ class WidgetRepoTest {
         widgetRepo.addWidget(sampleWidget)
         widgetRepo.addWidget(sampleWidget2)
         widgetRepo.addWidget(sampleWidget.copy(widgetId = 5))
-        this.advanceUntilIdle()
 
         widgetRepo.deleteWidgetsByDoorId(0)
-        this.advanceUntilIdle()
 
         val result = widgetRepo.getWidget(0)
-        assertThat(result).isEqualTo(null)
+        assertThat(result).isNull()
 
         val result2 = widgetRepo.getWidget(2)
         assertThat(result2).isEqualTo(sampleWidget2)
@@ -96,7 +89,6 @@ class WidgetRepoTest {
     @Test
     fun addDuplicatedWidget_updated() = testScope.runTest {
         widgetRepo.addWidget(sampleWidget)
-        this.advanceUntilIdle()
         widgetRepo.addWidget(sampleWidget.copy(doorName = "Test Door 2"))
 
         val result = widgetRepo.getWidget(0)
@@ -106,10 +98,9 @@ class WidgetRepoTest {
     @Test
     fun deleteNotExistedWidget_nothing_happen() = testScope.runTest {
         widgetRepo.deleteWidget(2)
-        this.advanceUntilIdle()
 
         val result = widgetRepo.getWidget(0)
-        assertThat(result).isEqualTo(null)
+        assertThat(result).isNull()
     }
 
 }

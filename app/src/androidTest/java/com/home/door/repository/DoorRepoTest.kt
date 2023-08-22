@@ -51,7 +51,18 @@ class DoorRepoTest {
 
         val doors = repo.getDoors().first()
 
-        Truth.assertThat(doors.first().name).isEqualTo("door1")
+        Truth.assertThat(doors.first().name).isEqualTo(door.name)
+    }
+
+    @Test
+    fun getDoor() = runTest(dispatcher.scheduler) {
+        val door =
+            DoorEntity(id = 1, name = "door1", ip = "192.168.1.1", user = "taha", password = "taha")
+        repo.insertDoors(listOf(door))
+
+        val result = repo.getDoor(door.id.toString())
+
+        Truth.assertThat(result).isEqualTo(door)
     }
 
     @Test
@@ -108,7 +119,7 @@ class DoorRepoTest {
         val doors = repo.getDoors().first()
 
         Truth.assertThat(doors).hasSize(1)
-        Truth.assertThat(doors.first().name).isEqualTo("door1")
+        Truth.assertThat(doors.first()).isEqualTo(door)
     }
 
     @Test
@@ -126,6 +137,13 @@ class DoorRepoTest {
         val doors = repo.getDoors().first()
 
         Truth.assertThat(doors).isEmpty()
+    }
+
+    @Test
+    fun getNotExistedDoor_nothing_happen() = runTest(dispatcher.scheduler) {
+        val result = repo.getDoor("1")
+
+        Truth.assertThat(result).isNull()
     }
 
 }

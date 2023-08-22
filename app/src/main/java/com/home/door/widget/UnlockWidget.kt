@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.widget.RemoteViews
 import com.home.door.R
 import com.home.door.data.widget.Widget
@@ -40,7 +39,6 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
     }
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.unlock_widget).apply {
-        Log.d("Widget", "updateAppWidget: $widget")
         widget?.let {
             setTextViewText(R.id.appwidget_text, it.doorName)
             setOnClickPendingIntent(R.id.appwidget, getPendingIntent(context, it) )

@@ -4,7 +4,6 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -26,6 +25,7 @@ import com.home.door.widget.updateAppWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -75,61 +75,9 @@ class MainActivity : AppCompatActivity() {
         binding.recycler.adapter = doorAdapter
         binding.recycler.layoutManager = GridLayoutManager(this, 2)
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.distinctUntilChanged { _, new -> new.openResult == null }
-                    .collect { state ->
-                        state.openResult
-                            ?.onSuccess {
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    getString(R.string.door_opened),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                viewModel.onEvent(MainEvent.ResetState)
-                            }
-                            ?.onFailure {
-                                Toast.makeText(
-                                    this@MainActivity,
-                                    it.localizedMessage,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                viewModel.onEvent(MainEvent.ResetState)
-                            }
-                    }
-            }
+        collectState(viewModel.uiState, viewModel::onEvent) {
+            doorAdapter.submitList(it)
         }
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.distinctUntilChanged { _, new ->
-                    new.deletedWidgets.isEmpty() and (new.addedWidget == null)
-                }.collect { state ->
-                    val appWidgetManager = AppWidgetManager.getInstance(this@MainActivity)
-                    if (state.addedWidget != null){
-                        Log.d("MainActivity", "onCreate: onWidgetAdded")
-                        updateAppWidget(this@MainActivity, appWidgetManager, state.addedWidget)
-                        Toast.makeText(
-                            this@MainActivity,
-                            getString(R.string.pin_toast),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    if (state.deletedWidgets.isNotEmpty()){
-                        invalidateWidgets(this@MainActivity, appWidgetManager, state.deletedWidgets)
-                    }
-                    viewModel.onEvent(MainEvent.ResetState)
-                }
-            }
-        }
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.distinctUntilChanged { old, new -> old.doors == new.doors }
-                    .collect { state ->
-                        doorAdapter.submitList(state.doors)
-                    }
-            }
-        }
-
         binding.fab.setOnClickListener { _ ->
             showNewDoorDialog { viewModel.onEvent(MainEvent.AddDoor(it)) }
             dialogJob = lifecycleScope.launch {
@@ -156,6 +104,68 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun collectState(
+        uiState: StateFlow<MainUiState>,
+        onEvent: (MainEvent) -> Unit,
+        onRefresh: (List<DoorEntity>) -> Unit
+    ) {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                uiState.distinctUntilChanged { _, new -> new.openResult == null }
+                    .collect { state ->
+                        state.openResult
+                            ?.onSuccess {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    getString(R.string.door_opened),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                onEvent(MainEvent.ResetState)
+                            }
+                            ?.onFailure {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    it.localizedMessage,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                onEvent(MainEvent.ResetState)
+                            }
+                    }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                uiState.distinctUntilChanged { _, new ->
+                    new.deletedWidgets.isEmpty() and (new.addedWidget == null)
+                }.collect { state ->
+                    val appWidgetManager = AppWidgetManager.getInstance(this@MainActivity)
+                    if (state.addedWidget != null){
+                        updateAppWidget(this@MainActivity, appWidgetManager, state.addedWidget)
+                        Toast.makeText(
+                            this@MainActivity,
+                            getString(R.string.pin_toast),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    if (state.deletedWidgets.isNotEmpty()){
+                        invalidateWidgets(this@MainActivity, appWidgetManager, state.deletedWidgets)
+                    }
+                    onEvent(MainEvent.ResetState)
+                }
+            }
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                uiState.distinctUntilChanged { old, new -> old.doors == new.doors }
+                    .collect { state ->
+                        onRefresh(state.doors)
+                    }
+            }
+        }
+
     }
 
     private fun showNewDoorDialog(onAddNew: (DoorEntity) -> Unit) {

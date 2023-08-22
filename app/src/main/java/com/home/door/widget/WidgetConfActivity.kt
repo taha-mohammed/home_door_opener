@@ -18,7 +18,6 @@ import com.home.door.data.room.DoorEntity
 import com.home.door.util.Graph
 import com.home.door.util.toWidget
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class WidgetConfActivity : AppCompatActivity() {
 
@@ -33,15 +32,19 @@ class WidgetConfActivity : AppCompatActivity() {
         val recycler = findViewById<RecyclerView>(R.id.conf_recycler)
         recycler.layoutManager = LinearLayoutManager(this)
         val onClick:(door: DoorEntity) -> Unit = {
-            runBlocking {
+            lifecycleScope.launch {
                 Graph.widgetRepo.addWidget(it.toWidget(widgetId))
-            }
-            updateAppWidget(this, AppWidgetManager.getInstance(this), widgetId)
+                updateAppWidget(
+                    this@WidgetConfActivity,
+                    AppWidgetManager.getInstance(this@WidgetConfActivity),
+                    widgetId
+                )
 
-            val resultIntent = Intent()
-            resultIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
-            setResult(Activity.RESULT_OK, resultIntent)
-            finish()
+                val resultIntent = Intent()
+                resultIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+                setResult(Activity.RESULT_OK, resultIntent)
+                finish()
+            }
         }
 
         doors = emptyList()
